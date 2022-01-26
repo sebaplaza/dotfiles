@@ -1,0 +1,102 @@
+[includeIf "gitdir:~/develop/work/"]
+  path = ~/dotfiles/personal/.gitconfig-work
+[includeIf "gitdir:~/develop/perso/"]
+  path = ~/dotfiles/personal/.gitconfig-personal
+
+# ------------------ M E R G E -------------------------
+[merge]
+	tool = meld
+	conflictstyle = diff3
+
+[color]
+	ui = auto
+	branch = auto
+	status = auto
+  interactive = always
+
+[interactive]
+    diffFilter = delta --color-only
+
+[delta]
+    navigate = true  # use n and N to move between diff sections
+
+[color "interactive"]
+	error = red bold
+
+[alias]
+	amend     = commit --amend -a
+	br        = branch
+	branch-cleanup = "!f() { git branch --merged ${1-master} | grep -v " ${1-master}$" | xargs -n 1 git branch -d; }; f"
+	co        = checkout
+	ds        = diff --staged
+	di        = diff
+	fetchall  = fetch -v --all
+	lg = ! git log-fancy
+	l = ! git lg -n25
+	# With git >= 1.8.3 you can use %C(auto) for the branch decorator (%d)
+	log-fancy = log --graph --pretty=format:'%Cred%h%Creset -%C(auto)%d%Creset %s %Cgreen(%cr) %C(cyan)<%an>%Creset' --abbrev-commit --date=relative
+	log-me    = !UN=$(git config user.name)&& git log --author="\"$UN\"" --pretty=format:'%h %cd %s' --date=short
+	log-nice  = log --graph --decorate --pretty=oneline --abbrev-commit
+	panic     = !tar cvf ../git_panic.tar *
+	st        = status
+	wdiff     = diff --word-diff=plain
+	clean-orphan = "!git branch --merged | grep -vFf <(git branch -r | cut -d'/' -f2-)"
+	up = pull --rebase --autostash
+	wip = !git add --all . && git commit -m 'WIP'
+	recent = !git for-each-ref --sort=-committerdate --format='%(refname:short)' refs/heads/ | head -n 100
+
+  jira = !git current | grep -Po '[A-Z]+-[0-9]+'
+	current = !git branch --show-current --no-color 
+	
+  # Welcome to pam/fzf heaven. xargs hell
+	pam= !BRANCH=`git recent | fzf` && git checkout ${BRANCH}
+	pamadd= !FILES=`git status -s | awk '{ print $2 }' | fzf -x -m` && git add --all ${FILES}
+	pamfix= !HASH=`git log --pretty=oneline | head -n 100 | fzf` && git fixit `echo ${HASH} | awk '{ print $1 }'`
+	pamshow= !HASH=`git log --pretty=oneline | head -n 100 | fzf` && git show `echo ${HASH} | awk '{ print $1 }'`
+	pamlog= !HASH=`git log --pretty=oneline | head -n 100 | fzf` && echo ${HASH} | awk '{ print $1 }' | xargs echo -n | pbcopy
+	pamrebase= !HASH=`git log --pretty=oneline | head -n 100 | fzf` && git rebase -i `echo ${HASH} | awk '{ print $1 }'`^
+	pamvim= !FILES=`git status -s | awk '{ print $2 }' | fzf -x -m` && vim -O ${FILES}
+	pamvimconflicts= !FILES=`git status -s | grep '^[UMDA]\\{2\\} ' | awk '{ print $2 }' | fzf -x -m` && vim -O ${FILES}
+	pamgrep= !sh -c 'FILES=`git grep -l -A 0 -B 0 $1 $2 | fzf -x -m` && vim -O `echo ${FILES} | cut -d':' -f1 | xargs`' -
+  pamvimlog= !HASH=`git log --pretty=oneline | head -n 50 | fzf` && HASHZ=`echo ${HASH} | awk '{ print $1 }'` && FILES=`git show --diff-filter=d --pretty='format:' --name-only $HASHZ | grep -v -e '^$' | fzf -x -m` && vim -O ${FILES}
+	pamreset= !HASH=`git log --pretty=oneline | head -n 50 | fzf` && git reset --soft `echo ${HASH} | awk '{ print $1 }'`^
+	undo = reset --soft HEAD^
+
+[pull]
+	rebase = true
+
+[rebase]
+	autoStash = true
+	autosquash = true
+
+[push]
+	default = simple
+
+[protocol]
+	version = 2
+
+[core]
+	editor = nvim
+	pager = delta
+
+[rerere]
+	enabled = true
+
+[pack]
+	window = 0
+
+[fetch]
+	prune = true
+
+[diff]
+	tool = meld
+	colorMoved = default
+
+[difftool]
+	prompt = false
+
+[filter "lfs"]
+	process = git-lfs filter-process
+	required = true
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
