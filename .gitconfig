@@ -1,7 +1,7 @@
-[includeIf "gitdir:~/develop/work/"]
-  path = ~/dotfiles/personal/.gitconfig-work
-[includeIf "gitdir:~/develop/perso/"]
-  path = ~/dotfiles/personal/.gitconfig-personal
+[includeIf "gitdir:~/dev/work/"]
+  path = ~/dotfiles/private/.gitconfig-work
+[includeIf "gitdir:~/dev/perso/"]
+  path = ~/dotfiles/private/.gitconfig-personal
 
 # ------------------ M E R G E -------------------------
 [merge]
